@@ -29,7 +29,24 @@ def inHouseBoardChange(move, array, chip):
 
 def winCheck(array, chip):
     #TODO: Check if there is a win (also check if board is full if there is a tie) on the internal board array (var name is board)
-    print("hi")
+    if array[0][0] == chip and array[0][1] == chip and [0][2] == chip: #horizontal 1
+        return True
+    elif array[1][0] == chip and array[1][1] == chip and array[1][2] == chip: #horizontal 2
+        return True
+    elif array[2][0] == chip and array[2][1] == chip and array[2][2] == chip: #horizontal 3
+        return True
+    elif array[0][0] == chip and array[1][0] == chip and array[2][0] == chip: #vertical 1
+        return True
+    elif array[0][1] == chip and array[1][1] == chip and array[2][1] == chip: #vertical 2
+        return True
+    elif array[0][2] == chip and array[1][2] == chip and array[2][2] == chip: #vertical 3
+        return True
+    elif array[0][0] == chip and array[1][1] == chip and array[2][2] == chip: #diagonal 1
+        return True
+    elif array[2][0] == chip and array[1][1] == chip and array[0][2] == chip: #diagonal 2
+        return True
+    else: 
+        return False
         
 @bot.event
 async def on_ready(): #when the bot is activated this code will run 
@@ -76,7 +93,7 @@ ______|_____|_____\n\
     await ctx.send("```Player 2 is " + Player2.name + ".\n\n\
 Here is the board:\n"\
 + numpad + "\n\
-Each square has an associated number.\n" + Player1.name + ", choose what number you want to make your first move on (1, 2, 3, etc.)```")
+Each square has an associated number.\n[P1] " + Player1.name + ", choose what number you want to make your first move on (1, 2, 3, etc.)```")
 
     availableMoves = ['1','2','3','4','5','6','7','8','9']
     
