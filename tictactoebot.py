@@ -27,26 +27,65 @@ def inHouseBoardChange(move, array, chip):
     elif (move == '9'):
         array[2][2] = chip
 
-def winCheck(array, chip):
-    #TODO: Check if there is a win (also check if board is full if there is a tie) on the internal board array (var name is board)
-    if array[0][0] == chip and array[0][1] == chip and [0][2] == chip: #horizontal 1
-        return True
+def winCheck(array, chip, p1name, p2name):
+    fullBoard = True #at the moment we assume the board is full. Then, we will go through each element and check if it is empty
+    for row in array:
+        for e in row:
+            fullBoard = fullBoard and e != "" #if at any point, an element is empty, then fullBoard will be set to false
+
+    if array[0][0] == chip and array[0][1] == chip and array[0][2] == chip: #horizontal 1
+        if (chip == "X"):
+            finalMessage = "```[P1] " + p1name + " has won the game on the top row!\nType %play to play again!```"
+        else:
+            finalMessage = "```[P2] " + p2name + " has won the game on the top row!\nType %play to play again!```"
+        return True, finalMessage
     elif array[1][0] == chip and array[1][1] == chip and array[1][2] == chip: #horizontal 2
-        return True
+        if (chip == "X"):
+            finalMessage = "```[P1] " + p1name + " has won the game on the middle row!\nType %play to play again!```"
+        else:
+            finalMessage = "```[P2] " + p2name + " has won the game on the middle row!\nType %play to play again!```"
+        return True, finalMessage
     elif array[2][0] == chip and array[2][1] == chip and array[2][2] == chip: #horizontal 3
-        return True
+        if (chip == "X"):
+            finalMessage = "```[P1] " + p1name + " has won the game on the bottom row!\nType %play to play again!```"
+        else:
+            finalMessage = "```[P2] " + p2name + " has won the game on the bottom row!\nType %play to play again!```"
+        return True, finalMessage
     elif array[0][0] == chip and array[1][0] == chip and array[2][0] == chip: #vertical 1
-        return True
+        if (chip == "X"):
+            finalMessage = "```[P1] " + p1name + " has won the game on the first column!\nType %play to play again!```"
+        else:
+            finalMessage = "```[P2] " + p2name + " has won the game on the first column!\nType %play to play again!```"
+        return True, finalMessage
     elif array[0][1] == chip and array[1][1] == chip and array[2][1] == chip: #vertical 2
-        return True
+        if (chip == "X"):
+            finalMessage = "```[P1] " + p1name + " has won the game on the second column!\nType %play to play again!```"
+        else:
+            finalMessage = "```[P2] " + p2name + " has won the game on the second column!\nType %play to play again!```"
+        return True, finalMessage
     elif array[0][2] == chip and array[1][2] == chip and array[2][2] == chip: #vertical 3
-        return True
+        if (chip == "X"):
+            finalMessage = "```[P1] " + p1name + " has won the game on the third column!\nType %play to play again!```"
+        else:
+            finalMessage = "```[P2] " + p2name + " has won the game on the third column!\nType %play to play again!```"
+        return True, finalMessage
     elif array[0][0] == chip and array[1][1] == chip and array[2][2] == chip: #diagonal 1
-        return True
+        if (chip == "X"):
+            finalMessage = "```[P1] " + p1name + " has won the game on a diagonal!\nType %play to play again!```"
+        else:
+            finalMessage = "```[P2] " + p2name + " has won the game on a diagonal!\nType %play to play again!```"
+        return True, finalMessage
     elif array[2][0] == chip and array[1][1] == chip and array[0][2] == chip: #diagonal 2
-        return True
+        if (chip == "X"):
+            finalMessage = "```[P1] " + p1name + " has won the game on a diagonal!\nType %play to play again!```"
+        else:
+            finalMessage = "```[P2] " + p2name + " has won the game on a diagonal!\nType %play to play again!```"
+        return True, finalMessage
+    elif fullBoard:
+        finalMessage = "```Looks like you held the game to a tie...\nType %play to play again!```"
+        return True, finalMessage
     else: 
-        return False
+        return False, ""
         
 @bot.event
 async def on_ready(): #when the bot is activated this code will run 
@@ -63,7 +102,7 @@ async def on_ready(): #when the bot is activated this code will run
 
 @bot.command(name='play', help ='Start a game of tic-tac-toe')
 async def tictactoeGame(ctx):
-    blank = " "
+    blank = ""
     board = [[blank, blank, blank], [blank, blank, blank], [blank, blank, blank]]
 
     numpad ="\
@@ -77,7 +116,7 @@ ______|_____|_____\n\
    7  |  8  |  9  \n\
       |     |     \n"
 
-    await ctx.send("```Welcome to tic-tac-toe!\nPlayer 1 Please say 'ready'```")
+    await ctx.send("```Welcome to tic-tac-toe!\n\nPlayer 1 Please say 'ready'```")
 
     def checkReady(msg):
         return msg.content == 'ready'
@@ -93,32 +132,44 @@ ______|_____|_____\n\
     await ctx.send("```Player 2 is " + Player2.name + ".\n\n\
 Here is the board:\n"\
 + numpad + "\n\
-Each square has an associated number.\n[P1] " + Player1.name + ", choose what number you want to make your first move on (1, 2, 3, etc.)```")
+Each square has an associated number.```")
 
-    availableMoves = ['1','2','3','4','5','6','7','8','9']
-    
-    def checkP1Move(validMove):
+    def checkMove(validMove):
         returnVal = False
         for x in availableMoves:
             returnVal = (validMove.content == x)
-            print(returnVal)
             if validMove.content == x:
-                availableMoves.remove(x)
                 break
-        return returnVal and validMove.author == Player1
+        if (turn == 'X'):
+            return returnVal and validMove.author == Player1
+        elif (turn == 'O'):
+            return returnVal and validMove.author == Player2
     
-    p1move1 = await bot.wait_for('message', check = checkP1Move)
-    print (p1move1.content)
-    numpad = numpad.replace(p1move1.content, 'X')
-    print(board)
-    inHouseBoardChange(p1move1.content, board, 'X')
-    print(board)
+    availableMoves = ['1','2','3','4','5','6','7','8','9']
+    partingMessage = ""
+    turn = 'O' #it is currently the X player's turn
+    switch = True #Makes it easy to switch between turn 'X' and 'O'
+    condition = False
+    while (not condition):
+        if switch:
+            turn = 'X'
+            switch = False
+        else:
+            turn = 'O'
+            switch = True
+        if not switch:
+            await ctx.send("```[P1] " + Player1.name + ", please make your move (choose 1, 2, 3, etc.)```")
+        else:
+            await ctx.send("```[P2] " + Player2.name + ", please make your move (choose 1, 2, 3, etc.)```")
+        move = await bot.wait_for('message', check = checkMove)
+        availableMoves.remove(move.content)
+        numpad = numpad.replace(move.content, turn)
+        inHouseBoardChange(move.content, board, turn)
+        await ctx.send("```" + numpad + "```")
+        condition, partingMessage = winCheck(board, turn, Player1.name, Player2.name)
 
-    await ctx.send("```" + numpad + "\nPlayer 2 choose your move.```")
-
-    #TODO: Make second player turn and make loop that goes thru each turn? or figure out how to find end etc.
-
-
+    await ctx.send(partingMessage)
+        
 
 @bot.command(name='howtoplay', help='Useless command')
 async def guide(ctx):
